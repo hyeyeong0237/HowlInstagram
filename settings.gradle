@@ -1,0 +1,2 @@
+rootProject.name = "HowlInstagram"
+include ':app'

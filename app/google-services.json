@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "369724980380",
+    "project_id": "hyinstagram23",
+    "storage_bucket": "hyinstagram23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369724980380:android:4cf00ffacac36525cb4159",
+        "android_client_info": {
+          "package_name": "com.example.howlinstagram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369724980380-dfbjihqbvanakljnnud0erl2vf57l64a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATWckEXIgMsbSAywJF9zKbmPgI57CtGpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369724980380-dfbjihqbvanakljnnud0erl2vf57l64a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
