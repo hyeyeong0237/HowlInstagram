@@ -1,5 +1,6 @@
 package com.example.howlinstagram.navigation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.howlinstagram.R
 import com.example.howlinstagram.navigation.model.ContentDTO
 import com.google.firebase.auth.FirebaseAuth
@@ -37,9 +39,14 @@ class DetailViewFragment : Fragment(){
         var contentUidList : ArrayList<String> = arrayListOf()
 
         init {
+
+
             firestore?.collection("images")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
+
+                if(querySnapshot == null) return@addSnapshotListener
+
                 for(snapshot in querySnapshot!!.documents){
                     var item = snapshot.toObject(ContentDTO::class.java)
                     contentDTOs.add(item!!)
@@ -59,6 +66,14 @@ class DetailViewFragment : Fragment(){
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
             var viewholer = (p0 as CustomViewHolder).itemView
 
+            firestore?.collection("profileImages")?.document(contentDTOs[p1].uid!!)
+                ?.get()?.addOnCompleteListener { task ->
+                    if(task.isSuccessful){
+                        var url = task.result?.get("image")
+                        Glide.with(p0.itemView.context).load(url).apply(RequestOptions().circleCrop()).into(viewholer.detailviewitem_profile_image)
+                    }
+                }
+
             viewholer.detailviewitem_profile_textview.text = contentDTOs!![p1].userId
 
             Glide.with(p0.itemView.context).load(contentDTOs!![p1].imageUrl).into(viewholer.detailviewitem_imageview_content)
@@ -67,7 +82,6 @@ class DetailViewFragment : Fragment(){
 
             viewholer.detailviewitem_favoritecounter_textview.text = "Likes "+ contentDTOs!![p1].favoriteCount
 
-            Glide.with(p0.itemView.context).load(contentDTOs!![p1].imageUrl).into(viewholer.detailviewitem_profile_image)
 
             viewholer.detailviewitem_favorite_imageview.setOnClickListener {
                 favoriteEvent(p1)
@@ -77,6 +91,22 @@ class DetailViewFragment : Fragment(){
                 viewholer.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite)
             }else{
                 viewholer.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite_border)
+            }
+
+
+            viewholer.detailviewitem_profile_image.setOnClickListener {
+                var fragment = UserFragment()
+                var bundle = Bundle()
+                bundle.putString("destinationUid", contentDTOs[p1].uid)
+                bundle.putString("userId", contentDTOs[p1].userId)
+                fragment.arguments = bundle
+                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content, fragment)?.commit()
+            }
+
+            viewholer.detailviewitem_comment_imageview.setOnClickListener { v ->
+                var intent = Intent(v.context, CommentActivity::class.java)
+                intent.putExtra("contentUid", contentUidList[p1])
+                startActivity(intent)
             }
 
 
