@@ -13,6 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.howlinstagram.R
 import com.example.howlinstagram.navigation.model.AlarmDTO
 import com.example.howlinstagram.navigation.model.ContentDTO
+import com.example.howlinstagram.navigation.util.FcmPush
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_comment.*
@@ -53,6 +54,10 @@ class CommentActivity : AppCompatActivity() {
         alarmDTO.timestamp = System.currentTimeMillis()
         alarmDTO.message = message
         FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+
+        var msg = FirebaseAuth.getInstance().currentUser?.email + " "+ getString(R.string.alarm_comment) + " of " + message
+        FcmPush.instance.sendMessage(destinationUid, "HYInstagram", msg)
+
     }
 
     inner class CommentRecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
