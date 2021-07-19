@@ -11,9 +11,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.howlinstagram.R
 import com.example.howlinstagram.navigation.model.AlarmDTO
+import com.example.howlinstagram.navigation.model.UserDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.fragment_alarm.view.*
+import kotlinx.android.synthetic.main.fragment_user.*
+import kotlinx.android.synthetic.main.fragment_user.view.*
 import kotlinx.android.synthetic.main.item_comment.view.*
 
 class AlarmFragment : Fragment(){
@@ -23,6 +27,7 @@ class AlarmFragment : Fragment(){
         view.alarmfragment_recyclerview.adapter = AlarmRecyclerviewAdapter()
         view.alarmfragment_recyclerview.layoutManager = LinearLayoutManager(activity)
 
+
         return view
     }
 
@@ -31,15 +36,19 @@ class AlarmFragment : Fragment(){
 
         init {
             val uid = FirebaseAuth.getInstance().currentUser?.uid
+            alarmDTOList.clear()
 
-            FirebaseFirestore.getInstance().collection("alarms").whereEqualTo("destinationUid", uid).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                alarmDTOList.clear()
+            FirebaseFirestore.getInstance().collection("alarms").whereEqualTo("destinationUid", uid)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                var list : ArrayList<AlarmDTO> = arrayListOf()
                 if(querySnapshot == null) return@addSnapshotListener
 
                 for(snapshot in querySnapshot.documents){
-                    alarmDTOList.add(snapshot.toObject(AlarmDTO::class.java)!!)
+
+                    list.add(snapshot.toObject(AlarmDTO::class.java)!!)
                 }
+                alarmDTOList = list
                 notifyDataSetChanged()
+
             }
         }
 
@@ -54,24 +63,27 @@ class AlarmFragment : Fragment(){
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             var view = holder.itemView
 
-            FirebaseFirestore.getInstance().collection("profileImages").document(alarmDTOList[position].uid!!).get().addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    var url = task.result!!["image"]
-                    Glide.with(view.context).load(url).apply(RequestOptions().circleCrop()).into(view.commentviewitem_imageview_profile)
+            if(isAdded){
+                FirebaseFirestore.getInstance().collection("Users")?.document(alarmDTOList[position].uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                    if(documentSnapshot == null) return@addSnapshotListener
+                    var userDTO = documentSnapshot.toObject(UserDTO::class.java)
+                    Glide.with(view.context).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
+                        .into(view.commentviewitem_imageview_profile)
+
                 }
             }
 
             when(alarmDTOList[position].kind){
                 0->{
-                    val str_0 = alarmDTOList[position].userId + " " +getString(R.string.alarm_favorite)
+                    val str_0 = alarmDTOList[position].userName + " " +getString(R.string.alarm_favorite)
                     view.commentviewitem_textview_profile.text = str_0
                 }
                 1->{
-                    val str_1 = alarmDTOList[position].userId + " " + getString(R.string.alarm_comment) + " of " + alarmDTOList[position].message
+                    val str_1 = alarmDTOList[position].userName + " " + getString(R.string.alarm_comment) + " of " + alarmDTOList[position].message
                     view.commentviewitem_textview_profile.text = str_1
                 }
                 2->{
-                    val str_2 = alarmDTOList[position].userId + " " + getString(R.string.alarm_follow)
+                    val str_2 = alarmDTOList[position].userName + " " + getString(R.string.alarm_follow)
                     view.commentviewitem_textview_profile.text = str_2
                 }
             }

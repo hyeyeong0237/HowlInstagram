@@ -4,6 +4,7 @@ data class AlarmDTO(
     var destinationUid : String? = null,
     var userId :String? = null,
     var uid : String? = null,
+    var userName: String? = null,
 
     //0: like alarm
     //1: comment alarm

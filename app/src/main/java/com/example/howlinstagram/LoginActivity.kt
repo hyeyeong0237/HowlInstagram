@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.howlinstagram.navigation.model.ContentDTO
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -25,6 +26,8 @@ import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.activity_add_photo.*
 import kotlinx.android.synthetic.main.activity_login.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -37,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
     var googleSignInClient : GoogleSignInClient? = null
     var GOOGLE_LOGIN_CODE = 9001
     var callbackManager : CallbackManager? = null
+    var firestore : FirebaseFirestore? =null
 
     //S6zlV96FckFEYKUoVHI1y3VjWTc=
 
@@ -45,8 +49,15 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
+
         email_login_button.setOnClickListener {
-            signInAndsignUp()
+            signInEmail()
+        }
+
+        email_signup_button.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java ))
+            finish()
         }
         google_sign_in_button.setOnClickListener {
             goolgleLogin()
@@ -60,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-        printHashKey()
+        //printHashKey()
         callbackManager = CallbackManager.Factory.create()
 
     }
@@ -116,6 +127,11 @@ class LoginActivity : AppCompatActivity() {
         auth?.signInWithCredential(credential)?.addOnCompleteListener {
                 task ->
             if(task.isSuccessful){
+                var str_fullname = task.result?.user?.displayName
+                var str_username = "empty"
+                var str_email = task.result?.user?.email
+                var str_user_id = task.result?.user?.uid
+                uploadUser(str_user_id, str_email, str_fullname, str_username)
                 //Login
                 moveMainPage(task.result?.user)
             }else{
@@ -150,6 +166,11 @@ class LoginActivity : AppCompatActivity() {
         auth?.signInWithCredential(credential)?.addOnCompleteListener {
                 task ->
             if(task.isSuccessful){
+                var str_fullname = task.result?.user?.displayName
+                var str_username = ""
+                var str_email = task.result?.user?.email
+                var str_user_id = task.result?.user?.uid
+                uploadUser(str_user_id, str_email, str_fullname, str_username)
                 //Login
                 moveMainPage(task.result?.user)
             }else{
@@ -159,6 +180,24 @@ class LoginActivity : AppCompatActivity() {
 
         }
     }
+
+    fun uploadUser(strUserId: String?, strEmail: String?, strFullname: String?, strUsername: String?) {
+
+        FirebaseFirestore.getInstance().collection("Users").document(strUserId!!).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            if(querySnapshot == null){
+                var map = HashMap<String, Any>()
+                map["id"] = strUserId
+                map["username"] = strUsername.toString()
+                map["fullname"] = strFullname.toString()
+                map["email"] = strEmail.toString()
+                map["imageurl"] = "https://firebasestorage.googleapis.com/v0/b/instagramtest-fcbef.appspot.com/o/placeholder.png?alt=media&token=b09b809d-a5f8-499b-9563-5252262e9a49"
+                FirebaseFirestore.getInstance().collection("Users").document(strUserId!!).set(map)
+            }
+        }
+
+
+    }
+    /**
 
     fun signInAndsignUp(){
         auth?.createUserWithEmailAndPassword(email_edittext.text.toString(), password_edittext.text.toString())?.addOnCompleteListener {
@@ -177,6 +216,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
     }
+    **/
 
     fun signInEmail(){
         auth?.signInWithEmailAndPassword(email_edittext.text.toString(), password_edittext.text.toString())
