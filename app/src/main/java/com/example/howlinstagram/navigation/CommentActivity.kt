@@ -23,7 +23,6 @@ class CommentActivity : AppCompatActivity() {
     var contentUid : String? = null
     var destinationUid : String? = null
     var user_name : String? = null
-    var imageuri : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

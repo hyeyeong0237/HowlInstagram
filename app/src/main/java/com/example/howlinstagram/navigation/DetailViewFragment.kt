@@ -108,9 +108,8 @@ class DetailViewFragment : Fragment(){
                 var fragment = UserFragment()
                 var bundle = Bundle()
                 bundle.putString("destinationUid", contentDTOs[p1].uid)
-                bundle.putString("userName", contentDTOs[p1].userName)
                 fragment.arguments = bundle
-                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content, fragment)?.commit()
+                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content, fragment)?.addToBackStack(null)?.commit()
             }
 
             viewholer.detailviewitem_comment_imageview.setOnClickListener { v ->
@@ -160,7 +159,6 @@ class DetailViewFragment : Fragment(){
             alarmDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
             alarmDTO.kind = 0
             alarmDTO.userName = user_name
-            Log.d("myapp", alarmDTO.userName!!)
             alarmDTO.timestamp = System.currentTimeMillis()
             FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
 

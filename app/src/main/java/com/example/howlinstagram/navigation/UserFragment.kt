@@ -60,7 +60,8 @@ class UserFragment : Fragment(){
             fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
             fragmentView?.toolbar_btn_back?.visibility = View.VISIBLE
             fragmentView?.toolbar_btn_back?.setOnClickListener {
-                mainactivity.bottom_navigation.selectedItemId = R.id.action_home
+                activity?.supportFragmentManager?.popBackStack()
+
             }
             fragmentView?.account_btn_follow_signout?.setOnClickListener {
                 requestFollow()

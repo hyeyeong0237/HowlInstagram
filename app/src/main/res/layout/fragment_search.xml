@@ -12,35 +12,42 @@
         android:background="?android:attr/windowBackground">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white">
+            android:background="?android:attr/windowBackground"
+            android:id="@+id/toolbar">
 
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_search" />
+                android:src="@drawable/ic_search"/>
 
-            <Button
-                android:id="@+id/search_bar"
-                android:layout_width="match_parent"
+            <EditText
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
                 android:background="@android:color/transparent"
-                android:gravity="center_vertical|start"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/search"
                 android:hint="Search..."
-                android:textSize="18sp"
-                android:layout_marginLeft="30dp" />
+                android:layout_marginStart="20dp" />
+
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="25dp"
+                android:src="@drawable/ic_close"
+                android:layout_marginLeft="25dp" />
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/gridfragment_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bar"
+        android:id="@+id/search_recycler_view">
     </androidx.recyclerview.widget.RecyclerView>
+
 
 </LinearLayout>

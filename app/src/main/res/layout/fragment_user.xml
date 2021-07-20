@@ -7,37 +7,41 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/bar"
         android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:layout_width="30dp"
+                    android:id="@+id/toolbar_btn_back"
+                    android:layout_width="25dp"
                     android:layout_height="30dp"
                     android:layout_alignParentLeft="true"
-                    android:src="@drawable/ic_arrow_back"
-                    android:id="@+id/toolbar_btn_back" />
+                    android:layout_marginTop="7dp"
+                    android:layout_marginLeft="0dp"
+                    android:src="@drawable/ic_arrow_back" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
                     android:layout_toRightOf="@id/toolbar_btn_back"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:gravity="center"
                     android:maxLines="1"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:text="HYGoogle"
-                    android:id="@+id/username"/>
+                    android:id="@+id/username"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="7dp"/>
 
                 <ImageView
                     android:id="@+id/options"
@@ -45,6 +49,7 @@
                     android:layout_height="30dp"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="11dp"
+                    android:layout_marginTop="7dp"
                     android:src="@drawable/ic_setting" />
 
             </RelativeLayout>
@@ -53,6 +58,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <RelativeLayout
+        android:id="@+id/profile_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -64,16 +70,42 @@
             android:padding="5dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:id="@+id/account_iv_profile"
-                android:src="@drawable/ic_account"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_margin="15dp"
+                    android:id="@+id/account_iv_profile"
+                    android:src="@drawable/ic_account"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:maxLines="1"
+                    android:id="@+id/fullname"
+                    android:textStyle="bold"
+                    android:textSize="10sp"
+                    android:text="이혜영"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/bio"
+                    android:maxLines="5" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:paddingLeft="20dp"
-                android:paddingRight="4dp"
+                android:layout_marginTop="20dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:layout_height="80dp">
 
                 <LinearLayout
@@ -102,7 +134,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="posts" />
+                            android:text="게시물" />
 
                     </LinearLayout>
 
@@ -125,7 +157,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="followers" />
+                            android:text="팔로워" />
 
                     </LinearLayout>
 
@@ -148,7 +180,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="following" />
+                            android:text="팔로잉" />
 
                     </LinearLayout>
 
@@ -158,45 +190,20 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_marginTop="8dp"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:id="@+id/mid_bar"
-            android:layout_below="@+id/top_bar"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:id="@+id/fullname"
-                android:textStyle="bold"
-                android:textSize="10sp"
-                android:text="이혜영"
-                android:textColor="@color/black"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/bio"
-                android:maxLines="5" />
-
-        </LinearLayout>
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Follow"
             android:theme="@style/ButtonStyle"
-            android:layout_below="@id/mid_bar"
+            android:layout_below="@id/top_bar"
             android:id="@+id/account_btn_follow_signout" />
+
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/mid_bar"
+        android:layout_below="@id/profile_bar"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="-5dp"
         android:layout_marginRight="-5dp"
