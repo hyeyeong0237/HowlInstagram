@@ -11,12 +11,13 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:civ_border_color="#BC1818"
+        app:civ_border_color="#E30D61"
         app:civ_border_width="2dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_launcher_foreground"
         android:layout_marginTop="5dp"
-        android:id="@+id/story_photo"/>
+        android:id="@+id/story_photo">
+    </de.hdodenhof.circleimageview.CircleImageView>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="50dp"
@@ -34,7 +35,7 @@
         android:layout_height="wrap_content"
         android:text="username"
         android:id="@+id/story_username"
-        android:textColor="@color/colorPrimaryDark"
+        android:textColor="@color/black"
         android:layout_gravity="center"
         android:maxLines="1"/>
 

@@ -69,7 +69,7 @@ class EditProfileActivity : AppCompatActivity() {
             var userDTO = documentSnapshot.toObject(UserDTO::class.java)
             username?.text = userDTO?.username
             fullname?.text = userDTO?.fullname
-            Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
+            Glide.with(applicationContext).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
                 .into(image_profile)
 
         }

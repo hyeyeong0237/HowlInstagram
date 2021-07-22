@@ -7,7 +7,7 @@ data class StoryDTO(
     var timestart: Long? = null,
     var timeend: Long? = null,
     var userid: String? = null,
-    var views: MutableMap<String, Boolean>? = HashMap()
+    var views: MutableMap<String?, Boolean?> = HashMap()
 ) {
 
 }

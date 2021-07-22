@@ -13,6 +13,7 @@ import com.example.howlinstagram.R
 import com.example.howlinstagram.navigation.model.AlarmDTO
 import com.example.howlinstagram.navigation.model.ContentDTO
 import com.example.howlinstagram.navigation.model.FollowDTO
+import com.example.howlinstagram.navigation.model.UserDTO
 import com.example.howlinstagram.navigation.util.FcmPush
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -39,8 +40,6 @@ class PostDetailFragment : Fragment() {
                     if (documentSnapshot == null) return@addSnapshotListener
 
                     var item = documentSnapshot.toObject(ContentDTO::class.java)
-                    fragmentView?.detailviewitem_profile_textview?.text = item?.userName
-                    fragmentView?.user_name?.text = item?.userName
                     fragmentView?.detailviewitem_explain_textview?.text = item?.explain
                     if(isAdded) {
                         Glide.with(this).load(item?.imageUrl)
@@ -68,15 +67,15 @@ class PostDetailFragment : Fragment() {
 
                 }
 
-            FirebaseFirestore.getInstance().collection("Users")?.document(destinationUid!!)
-                ?.get()?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        var url = task.result?.get("imageurl")
-                        Glide.with(this).load(url).apply(RequestOptions().circleCrop())
-                            .into(fragmentView?.detailviewitem_profile_image!!)
+            FirebaseFirestore.getInstance().collection("Users")?.document(destinationUid!!).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
-                    }
-                }
+                if(documentSnapshot == null) return@addSnapshotListener
+                var userDTO = documentSnapshot.toObject(UserDTO::class.java)
+                Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop()).into(fragmentView?.detailviewitem_profile_image!!)
+                fragmentView?.detailviewitem_profile_textview?.text = userDTO?.username
+                fragmentView?.user_name?.text = userDTO?.username
+            }
+
 
 
 

@@ -191,8 +191,10 @@ class UserFragment : Fragment(){
                 var userDTO = documentSnapshot.toObject(UserDTO::class.java)
                 username?.text = userDTO?.username
                 fullname?.text = userDTO?.fullname
-                Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
-                    .into(fragmentView?.account_iv_profile!!)
+                if(isAdded) {
+                    Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
+                        .into(fragmentView?.account_iv_profile!!)
+                }
 
             }
         }

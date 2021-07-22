@@ -16,18 +16,19 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.howlinstagram.AddStoryActivity
 import com.example.howlinstagram.R
-import com.example.howlinstagram.navigation.model.AlarmDTO
-import com.example.howlinstagram.navigation.model.ContentDTO
-import com.example.howlinstagram.navigation.model.StoryDTO
-import com.example.howlinstagram.navigation.model.UserDTO
+import com.example.howlinstagram.StoryActivity
+import com.example.howlinstagram.navigation.model.*
 import com.example.howlinstagram.navigation.util.FcmPush
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.android.synthetic.main.activity_edit_profile.*
 import kotlinx.android.synthetic.main.add_story_item.view.*
 import kotlinx.android.synthetic.main.fragment_detail.view.*
 import kotlinx.android.synthetic.main.fragment_search.view.*
 import kotlinx.android.synthetic.main.fragment_user.*
+import kotlinx.android.synthetic.main.fragment_user.fullname
+import kotlinx.android.synthetic.main.fragment_user.username
 import kotlinx.android.synthetic.main.fragment_user.view.*
 import kotlinx.android.synthetic.main.item_detail.*
 import kotlinx.android.synthetic.main.item_detail.view.*
@@ -40,6 +41,7 @@ class DetailViewFragment : Fragment(){
     var firestore : FirebaseFirestore? = null
     var uid : String? = null
     var fragmentview : View? = null
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentview= LayoutInflater.from(activity).inflate(R.layout.fragment_detail, container, false)
@@ -63,14 +65,28 @@ class DetailViewFragment : Fragment(){
 
 
         init {
-            firestore?.collection("Story")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firestore?.collection("users")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                if(documentSnapshot == null) return@addSnapshotListener
                 stories.clear()
                 stories.add(uid!!)
+                var countStory = 0
+                var followDTO = documentSnapshot.toObject(FollowDTO::class.java)
+                for(followingId in followDTO?.following?.keys!!){
 
-                if(querySnapshot == null) return@addSnapshotListener
+                    firestore?.collection("Story")?.document(followingId)?.collection("userStories")?.whereEqualTo("userid", followingId)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                        if(querySnapshot == null) return@addSnapshotListener
+                        countStory = 0
+                        for(snapshot in querySnapshot.documents){
+                            var storyDTO = snapshot.toObject(StoryDTO::class.java)
+                            if (storyDTO?.timestart!! < System.currentTimeMillis()  && System.currentTimeMillis() < storyDTO.timeend!!){
+                                countStory++
+                            }
+                        }
+                        if(countStory > 0 && !stories.contains(followingId)){
+                            stories.add(followingId)
+                        }
 
-                for(document in querySnapshot?.documents!!){
-                    stories.add(document.id!!)
+                    }
                 }
                 notifyDataSetChanged()
             }
@@ -107,6 +123,10 @@ class DetailViewFragment : Fragment(){
             view.setOnClickListener {
                 if(holder.adapterPosition == 0){
                     myStory(view.addstory_text, view.story_photo, true)
+                }else{
+                    val intent = Intent(context, StoryActivity::class.java)
+                    intent.putExtra("userid", storyUid)
+                    startActivity(intent)
                 }
             }
 
@@ -130,20 +150,23 @@ class DetailViewFragment : Fragment(){
 
     fun userInfo(view: View, userid : String, position: Int){
 
-        if(isAdded){
+
             firestore?.collection("Users")?.document(userid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 if(documentSnapshot == null) return@addSnapshotListener
                 var userDTO = documentSnapshot.toObject(UserDTO::class.java)
-                Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
-                    .into(view.story_photo)
-                if(position != 0){
+                if(isAdded) {
                     Glide.with(this).load(userDTO?.imageurl).apply(RequestOptions().circleCrop())
-                        .into(view.story_photo_seen)
-                    view.story_username.setText(userDTO?.username)
+                        .into(view.story_photo)
+                    if (position != 0) {
+                        Glide.with(this).load(userDTO?.imageurl)
+                            .apply(RequestOptions().circleCrop())
+                            .into(view.story_photo_seen)
+                        view.story_username.setText(userDTO?.username)
+                    }
                 }
 
             }
-        }
+
     }
 
     fun seenStory(view: View, userid: String){
@@ -169,32 +192,29 @@ class DetailViewFragment : Fragment(){
         }
     }
     fun myStory(add_Text : TextView, story_plus : ImageView , click : Boolean){
-        firestore?.collection("Story")?.whereEqualTo("userid", uid)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+        firestore?.collection("Story")?.document(uid!!)?.collection("userStories")?.whereEqualTo("userid", uid)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if(querySnapshot == null) return@addSnapshotListener
             var count = 0
             var timecurrent = System.currentTimeMillis()
-            /**
             for(snapshot in querySnapshot.documents){
                  var storyDTO = snapshot.toObject(StoryDTO::class.java)
                 if (storyDTO != null) {
-                    /**
                     if (timecurrent < storyDTO.timeend!! && timecurrent > storyDTO.timestart!!){
                         count++
                     }
-                    **/
                     }
             }
-            **/
+
 
             if(click){
 
                 if(count>0){
                     val alertDialogBuilder = AlertDialog.Builder(context)
                     alertDialogBuilder.setNeutralButton("View Story"){ dialog, which -> //TODO: go to story
-                            //val intent = Intent(context, StoryActivity::class.java)
-                            //intent.putExtra("userid", FirebaseAuth.getInstance().currentUser!!.uid)
-                            //startActivity(intent)
-                            //dialog.dismiss()
+                            val intent = Intent(context, StoryActivity::class.java)
+                             intent.putExtra("userid", uid)
+                             startActivity(intent)
+                             dialog.dismiss()
                         }
                     alertDialogBuilder.setPositiveButton("Add Story"){ dialog, which ->
                              var intent = Intent(context, AddStoryActivity::class.java)
@@ -228,7 +248,6 @@ class DetailViewFragment : Fragment(){
 
         var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
         var contentUidList : ArrayList<String> = arrayListOf()
-        var user_name : String? = null
 
         init {
 
@@ -259,17 +278,15 @@ class DetailViewFragment : Fragment(){
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
             var viewholer = (p0 as CustomViewHolder).itemView
 
-            firestore?.collection("Users")?.document(contentDTOs[p1].uid!!)
-                ?.get()?.addOnCompleteListener { task ->
-                    if(task.isSuccessful){
-                        var url = task.result?.get("imageurl")
-                        Glide.with(p0.itemView.context).load(url).apply(RequestOptions().circleCrop()).into(viewholer.detailviewitem_profile_image)
-                    }
+            firestore?.collection("Users")?.document(contentDTOs[p1].uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                if(documentSnapshot == null) return@addSnapshotListener
+                var userDTO = documentSnapshot.toObject(UserDTO::class.java)
+
+                Glide.with(p0.itemView.context).load(userDTO?.imageurl).apply(RequestOptions().circleCrop()).into(viewholer.detailviewitem_profile_image)
+                viewholer.detailviewitem_profile_textview.text = userDTO?.username
+                viewholer.user_name.text = userDTO?.username
                 }
 
-            viewholer.detailviewitem_profile_textview.text = contentDTOs!![p1].userName
-
-            viewholer.user_name.text = contentDTOs!![p1].userName
 
             Glide.with(p0.itemView.context).load(contentDTOs!![p1].imageUrl).into(viewholer.detailviewitem_imageview_content)
 
@@ -327,10 +344,11 @@ class DetailViewFragment : Fragment(){
                     FirebaseFirestore.getInstance().collection("Users")?.document(FirebaseAuth.getInstance().currentUser?.uid!!)
                         ?.get()?.addOnCompleteListener { task ->
                             if(task.isSuccessful){
-                                this.user_name = task.result?.get("username").toString()
+                                var user_name = task.result?.get("username").toString()
+                                favoriteAlarm(contentDTOs[position].uid!!, user_name)
                             }
                         }
-                    favoriteAlarm(contentDTOs[position].uid!!, this.user_name)
+
                 }
 
                 transaction.set(tsDoc, contentDTO)
